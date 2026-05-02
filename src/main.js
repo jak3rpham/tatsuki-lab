@@ -15,12 +15,19 @@ const geometry = new THREE.PlaneGeometry(2, 2);
 const material = new THREE.ShaderMaterial({
   vertexShader,
   fragmentShader,
+  uniforms: {
+    uTime: { value: 0.0 },
+  },
 });
 const mesh = new THREE.Mesh(geometry, material);
 scene.add(mesh);
 
+const startTime = performance.now();
+
 function animate() {
   requestAnimationFrame(animate);
+  // performance.now() trả về millisecond → chia 1000 ra giây
+  material.uniforms.uTime.value = (performance.now() - startTime) / 1000;
   renderer.render(scene, camera);
 }
 animate();
