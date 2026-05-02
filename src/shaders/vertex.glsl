@@ -55,7 +55,7 @@ void main() {
   elevation /= 1.875;
   
   // Apply displacement
-  newPosition.z += elevation * 0.2;
+  newPosition.z += elevation * 0.05;
   
   vElevation = elevation;
   
