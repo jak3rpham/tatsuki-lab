@@ -38,16 +38,25 @@ void main() {
   
   vec3 newPosition = position;
   
-  // Đây là phần m phải hiểu:
-  // snoise(vec2) trả về float trong khoảng ~[-1, 1], smooth, pseudo-random
-  // Input là position.xy * 2.0 → scale của noise (lớn hơn = noise nhỏ/dày hơn)
-  // + uTime * 0.3 → noise "trôi" theo time (slow drift)
-  float elevation = snoise(position.xy * 2.0 + uTime * 0.3);
+  // FBM: layer 4 octaves of noise
+  // Mỗi octave: frequency *= 2.0, amplitude *= 0.5
+  float elevation = 0.0;
+  float amplitude = 1.0;
+  float frequency = 2.0;
   
-  // Displace Z theo elevation, * 0.15 = biên độ nhẹ
-  newPosition.z += elevation * 0.15;
+  for (int i = 0; i < 4; i++) {
+    elevation += snoise(position.xy * frequency + uTime * 0.3) * amplitude;
+    frequency *= 2.0;
+    amplitude *= 0.5;
+  }
   
-  // Pass elevation sang fragment shader để dùng cho color (bonus)
+  // Normalize: tổng amplitude = 1 + 0.5 + 0.25 + 0.125 = 1.875
+  // Chia để output về range tương đương 1 octave
+  elevation /= 1.875;
+  
+  // Apply displacement
+  newPosition.z += elevation * 0.2;
+  
   vElevation = elevation;
   
   gl_Position = projectionMatrix * modelViewMatrix * vec4(newPosition, 1.0);
